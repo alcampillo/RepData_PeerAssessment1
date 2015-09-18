@@ -14,7 +14,8 @@ Show any code that is needed to
 
 ### Answer
 
-```{r load_process_data, results="hide"}
+
+```r
         data <- read.csv("activity.csv") # Load data
         data$date <- as.Date(as.character(data$date)) # Transform to date format
         library(dplyr) # Call to dplyr function, which I'll use later on
@@ -30,17 +31,23 @@ For this part of the assignment, you can ignore the missing values in the datase
     
 ### Answer
 
-```{r question 1}
+
+```r
         steps_per_day <- summarize(group_by(data, date), sum(steps))
         colnames(steps_per_day) <- c("date", "total_steps")
         hist(steps_per_day$total_steps, xlab = "Total steps per day", main = "Histogram of total steps per day")
+```
+
+![plot of chunk question 1](figure/question 1-1.png) 
+
+```r
         mean1 <- mean(steps_per_day$total_steps, na.rm=TRUE)
         show_mean1 <- formatC(mean1, format = "f", digits=1)
         median1 <- median(steps_per_day$total_steps, na.rm=TRUE)
         show_median1 <- formatC(median1, format = "f", digits=1)
 ```
     
-    The average number of steps per day is `r show_mean1` and the median is `r show_median1`.
+    The average number of steps per day is 10766.2 and the median is 10765.0.
     
 ## Q2. What is the average daily activity pattern?
 
@@ -50,15 +57,20 @@ For this part of the assignment, you can ignore the missing values in the datase
 
 ### Answer
 
-```{r question 2}
+
+```r
         steps_per_interval <- summarize(group_by(data, interval), mean(steps, na.rm=TRUE))
         colnames(steps_per_interval) <- c("interval", "average_steps_per_interval")
         plot(steps_per_interval$interval, steps_per_interval$average_steps_per_interval, type="l", xlab = "interval", ylab = "average daily steps", main = "Average daily activity pattern")
-        
+```
+
+![plot of chunk question 2](figure/question 2-1.png) 
+
+```r
         max_interval <- steps_per_interval$interval[steps_per_interval$average_steps_per_interval == max(steps_per_interval$average_steps_per_interval)]
 ```
 
-The 5-minute interval of the day where the daily average steps is maximum is at `r max_interval`.
+The 5-minute interval of the day where the daily average steps is maximum is at 835.
 
 ## Q3. Imputing missing values
 
@@ -74,17 +86,19 @@ Note that there are a number of days/intervals where there are missing values (c
 
 ### Answer
 
-```{r question 3a}
+
+```r
         nas <- sum(is.na(data$steps))
         perc_nas <- mean(is.na(data$steps))*100
         show_perc_nas <- formatC(perc_nas, format = "f", digits=1)
 ```
 
-The total number of missing values in the dataset is `r nas` (that represents `r show_perc_nas`% of the total).
+The total number of missing values in the dataset is 2304 (that represents 13.1% of the total).
 
 The strategy I'll use to fill in missing values is replacing them with the overall step average
 
-```{r question 3b}
+
+```r
         complete_data <- data # Create a copy of the data
         # Now, I substitute the NAs with the average number of steps
         complete_data[is.na(complete_data$steps), 1] <- mean(data$steps, na.rm=TRUE)
@@ -92,6 +106,11 @@ The strategy I'll use to fill in missing values is replacing them with the overa
         steps_per_day2 <- summarize(group_by(complete_data, date), sum(steps))
         colnames(steps_per_day2) <- c("date", "total_steps")
         hist(steps_per_day2$total_steps, xlab = "Total steps per day", main = "Histogram of total steps per day without NAs")
+```
+
+![plot of chunk question 3b](figure/question 3b-1.png) 
+
+```r
         mean2 <- mean(steps_per_day2$total_steps)
         show_mean2 <- formatC(mean1, format = "f", digits=1)
         median2 <- median(steps_per_day2$total_steps)
@@ -102,7 +121,7 @@ The strategy I'll use to fill in missing values is replacing them with the overa
         show_difference_median <- formatC(difference_median, format = "f", digits=1)
 ```
 
-The new average number of steps per day is `r show_mean2` (difference of `r show_difference_mean` with the original) and the median is `r show_median2` (difference of `r show_difference_median` with the original). Thus, the impact of imputing missing data on the estimates of the total daily number of steps is very limited.
+The new average number of steps per day is 10766.2 (difference of 0.0 with the original) and the median is 10766.2 (difference of 1.2 with the original). Thus, the impact of imputing missing data on the estimates of the total daily number of steps is very limited.
 
 ## Q4. Are there differences in activity patterns between weekdays and weekends?
 
@@ -114,7 +133,8 @@ For this part the weekdays() function may be of some help here. Use the dataset 
     
 ### Answer
 
-```{r question 4}
+
+```r
         day <- weekdays(complete_data$date) # Figure out day of week
         complete_data <- cbind(complete_data, day) # Add this new variable to the data frame
         # Add a new variable figuring out if day is a weekday or a weekend ("sábado"" and "domingo"" are "Saturday"" and "Sunday"" in English)
@@ -126,3 +146,5 @@ For this part the weekdays() function may be of some help here. Use the dataset 
         library(lattice)
         xyplot(average_steps_per_interval_daytype~interval | as.factor(day_type), data=steps_per_interval_by_daytype, type="l")
 ```
+
+![plot of chunk question 4](figure/question 4-1.png) 
